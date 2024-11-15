@@ -1,0 +1,6 @@
+@EventosSernaJrAPI_HostAddress = http://localhost:5150
+
+GET {{EventosSernaJrAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
