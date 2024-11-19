@@ -1,0 +1,13 @@
+# Archivos sensibles
+appsettings.json
+appsettings.*.json
+
+# Archivos de compilación y dependencias
+bin/
+obj/
+*.user
+*.lock.json
+
+# Archivos de entorno y temporales
+.env
+*.log
