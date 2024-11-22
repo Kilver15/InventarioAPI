@@ -9,7 +9,11 @@ namespace EventosSernaJrAPI.Models
         public string Name { get; set; }
         public int InInventory { get; set; }
         public int InvReal { get; set; }
-        public int categoryId { get; set; }
+        public int CategoryId { get; set; }
+        public bool IsActive { get; set; }
+        // Timestamps
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
         public Category Category { get; set; }
     }
 }

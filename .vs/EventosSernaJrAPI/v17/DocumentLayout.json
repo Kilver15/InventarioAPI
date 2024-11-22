@@ -3,20 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\Migrations\\20241119053416_initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:EventosSernaJrAPI\\Migrations\\20241119053416_initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{6E03F7DB-1460-405D-AF28-D7448148A505}|EventosSernaJrAPI\\EventosSernaJrAPI.csproj|c:\\users\\josei\\source\\repos\\eventossernajrapi\\eventossernajrapi\\models\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6E03F7DB-1460-405D-AF28-D7448148A505}|EventosSernaJrAPI\\EventosSernaJrAPI.csproj|solutionrelative:eventossernajrapi\\models\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6E03F7DB-1460-405D-AF28-D7448148A505}|EventosSernaJrAPI\\EventosSernaJrAPI.csproj|c:\\users\\josei\\source\\repos\\eventossernajrapi\\eventossernajrapi\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6E03F7DB-1460-405D-AF28-D7448148A505}|EventosSernaJrAPI\\EventosSernaJrAPI.csproj|solutionrelative:eventossernajrapi\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6E03F7DB-1460-405D-AF28-D7448148A505}|EventosSernaJrAPI\\EventosSernaJrAPI.csproj|c:\\users\\josei\\source\\repos\\eventossernajrapi\\eventossernajrapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{6E03F7DB-1460-405D-AF28-D7448148A505}|EventosSernaJrAPI\\EventosSernaJrAPI.csproj|solutionrelative:eventossernajrapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,34 +14,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 5,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "20241119053416_initial.cs",
-              "DocumentMoniker": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\Migrations\\20241119053416_initial.cs",
-              "RelativeDocumentMoniker": "EventosSernaJrAPI\\Migrations\\20241119053416_initial.cs",
-              "ToolTip": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\Migrations\\20241119053416_initial.cs",
-              "RelativeToolTip": "EventosSernaJrAPI\\Migrations\\20241119053416_initial.cs",
-              "ViewState": "AQIAACUAAAAAAAAAAAAQwDwAAAATAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-19T05:34:16.529Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "AppDBContext.cs",
-              "DocumentMoniker": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\Models\\AppDBContext.cs",
-              "RelativeDocumentMoniker": "EventosSernaJrAPI\\Models\\AppDBContext.cs",
-              "ToolTip": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\Models\\AppDBContext.cs",
-              "RelativeToolTip": "EventosSernaJrAPI\\Models\\AppDBContext.cs",
-              "ViewState": "AQIAAAUAAAAAAAAAAAAAwAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-19T05:31:14.459Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
@@ -76,28 +38,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Product.cs",
-              "DocumentMoniker": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\Models\\Product.cs",
-              "RelativeDocumentMoniker": "EventosSernaJrAPI\\Models\\Product.cs",
-              "ToolTip": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\Models\\Product.cs",
-              "RelativeToolTip": "EventosSernaJrAPI\\Models\\Product.cs",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAAAAsAAAAAAAAA",
+              "DocumentIndex": 0,
+              "Title": "AppDBContext.cs",
+              "DocumentMoniker": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\Models\\AppDBContext.cs",
+              "RelativeDocumentMoniker": "EventosSernaJrAPI\\Models\\AppDBContext.cs",
+              "ToolTip": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\Models\\AppDBContext.cs",
+              "RelativeToolTip": "EventosSernaJrAPI\\Models\\AppDBContext.cs",
+              "ViewState": "AQIAAAcAAAAAAAAAAAAzwA4AAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-19T05:30:33.506Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\appsettings.json",
-              "RelativeDocumentMoniker": "EventosSernaJrAPI\\appsettings.json",
-              "ToolTip": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\appsettings.json",
-              "RelativeToolTip": "EventosSernaJrAPI\\appsettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAABAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-11-19T05:29:03.15Z",
+              "WhenOpened": "2024-11-21T22:49:35.915Z",
               "EditorCaption": ""
             }
           ]

@@ -1,8 +1,9 @@
-﻿using FluentValidation;
+﻿using EventosSernaJrAPI.Models.DTOs;
+using FluentValidation;
 
 namespace EventosSernaJrAPI.Models.Validations
 {
-    public class CategoryValidator : AbstractValidator<Category>
+    public class CategoryValidator : AbstractValidator<CategoryDTO>
     {
         public CategoryValidator()
         {

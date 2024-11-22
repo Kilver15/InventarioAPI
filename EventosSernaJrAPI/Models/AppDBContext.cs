@@ -1,22 +1,41 @@
-﻿using Microsoft.EntityFrameworkCore;
-
+﻿using EventosSernaJrAPI.Services;
+using Microsoft.EntityFrameworkCore;
 namespace EventosSernaJrAPI.Models
 {
     public class AppDBContext : DbContext
     {
-        public AppDBContext(DbContextOptions<AppDBContext> options) : base(options)
+        private readonly JWTManager _jwtManager;
+        public AppDBContext(DbContextOptions<AppDBContext> options, JWTManager jwtManager) : base(options)
         {
+            _jwtManager = jwtManager;
         }
-        DbSet<Product> Products { get; set; }
-        DbSet<Category> Categories { get; set; }
-        DbSet<User> Users { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Product>()
-                .HasOne<Category>()
-                .WithMany()
-                .HasForeignKey(p => p.categoryId);
+                .HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryId);
+
+            // Seeder
+            if (_jwtManager != null)
+            {
+                modelBuilder.Entity<User>().HasData(
+                    new User
+                    {
+                        Id = 1,
+                        Username = "admin",
+                        Password = _jwtManager.encriptarSHA256("123456"),
+                        IsAdmin = true,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+            }
         }
     }
 }
+

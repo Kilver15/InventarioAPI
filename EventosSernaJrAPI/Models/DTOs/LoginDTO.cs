@@ -1,4 +1,4 @@
-﻿namespace EventosSernaJrAPI.Models
+﻿namespace EventosSernaJrAPI.Models.DTOs
 {
     public class LoginDTO
     {
