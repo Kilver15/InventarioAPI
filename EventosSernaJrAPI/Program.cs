@@ -3,13 +3,19 @@ using EventosSernaJrAPI.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
+using OfficeOpenXml;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Text;
+using static EventosSernaJrAPI.Services.IPaginationService;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+//Licencia de EPPlus
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
 // JWT
 builder.Services.AddSingleton<JWTManager>();
 builder.Services.AddAuthentication(config => {
@@ -34,8 +40,9 @@ builder.Services.AddAuthentication(config => {
 // Conexion  a la base de datos
 var ConnectionString = builder.Configuration.GetConnectionString("Connection");
 builder.Services.AddDbContext<AppDBContext>(options => options.UseSqlServer(ConnectionString));
-
-
+builder.Services.AddDbContext<AppDBContext>(options => { 
+            options.UseSqlServer(ConnectionString); 
+            options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning)); });
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

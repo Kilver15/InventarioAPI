@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.Drawing.Printing;
 using EventosSernaJrAPI.Models.DTOs;
+using EventosSernaJrAPI.Services;
 
 namespace EventosSernaJrAPI.Controllers
 {
@@ -19,10 +20,12 @@ namespace EventosSernaJrAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly AppDBContext _context;
+        private readonly JWTManager _jwtManager;
 
-        public UsersController(AppDBContext context)
+        public UsersController(AppDBContext context, JWTManager jwtManager)
         {
             _context = context;
+            _jwtManager = jwtManager;
         }
 
         // GET: api/Users
@@ -87,12 +90,15 @@ namespace EventosSernaJrAPI.Controllers
                 });
             }
 
-            var user = await _context.Categories.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
 
+            user.Username = userdto.Username;
+            user.Password = _jwtManager.encriptarSHA256(userdto.Password);
+            user.UpdatedAt = DateTime.Now;
             _context.Entry(user).State = EntityState.Modified;
 
             try
@@ -124,26 +130,43 @@ namespace EventosSernaJrAPI.Controllers
             {
                 return Forbid("No tienes permiso para acceder a este recurso.");
             }
+
+            user.CreatedAt = DateTime.Now;
+            user.UpdatedAt = DateTime.Now;
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
-        // DELETE: api/Users/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        // PUT: api/Users/toggle-activation/5
+        [HttpPatch("toggle-activation/{id}")]
+        public async Task<IActionResult> ToggleProductActivation(int id, [FromQuery] bool isActive)
         {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (role != "Admin")
+            {
+                return Forbid("No tienes permiso para acceder a este recurso.");
+            }
+            // Buscar el producto por ID
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(user);
+            // Actualizar el estado de activación
+            user.IsActive = isActive;
+            user.UpdatedAt = DateTime.Now;
+            _context.Entry(user).State = EntityState.Modified;
+
+            // Guardar cambios
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new
+            {
+                Message = isActive ? "Usuario reactivado correctamente." : "Usuario desactivado correctamente."
+            });
         }
 
         private bool UserExists(int id)

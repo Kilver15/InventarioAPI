@@ -29,6 +29,21 @@ namespace EventosSernaJrAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories(int page = 1, int pageSize = 10)
         {
+            if (page < 1 || pageSize < 1)
+            {
+                return BadRequest(new
+                {
+                    Message = "Los valores de página y tamaño de página deben ser mayores a 0."
+                });
+            }
+            int TotalCount = await _context.Categories.CountAsync(c => c.IsActive);
+            if (page > TotalCount / pageSize + 1)
+            {
+                return BadRequest(new
+                {
+                    Message = "La página solicitada no existe."
+                });
+            }
             var categories = await _context.Categories
                 .Where(c => c.IsActive == true)
                 .Skip((page - 1) * pageSize)
@@ -38,7 +53,41 @@ namespace EventosSernaJrAPI.Controllers
             return Ok(new
             {
                 Data = categories,
-                TotalCount = await _context.Categories.CountAsync(),
+                TotalCount,
+                Page = page,
+                PageSize = pageSize
+            });
+        }
+
+        // GET: api/Categories/inactive
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Category>>> GetInactiveCategories(int page = 1, int pageSize = 10)
+        {
+            if (page < 1 || pageSize < 1)
+            {
+                return BadRequest(new
+                {
+                    Message = "Los valores de página y tamaño de página deben ser mayores a 0."
+                });
+            }
+            int TotalCount = await _context.Categories.CountAsync(c => !c.IsActive);
+            if (page > TotalCount / pageSize + 1)
+            {
+                return BadRequest(new
+                {
+                    Message = "La página solicitada no existe."
+                });
+            }
+            var categories = await _context.Categories
+                .Where(c => !c.IsActive)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return Ok(new
+            {
+                Data = categories,
+                TotalCount,
                 Page = page,
                 PageSize = pageSize
             });
@@ -54,9 +103,23 @@ namespace EventosSernaJrAPI.Controllers
             {
                 return Forbid("No tienes permiso para acceder a este recurso.");
             }
+            if (page < 1 || pageSize < 1)
+            {
+                return BadRequest(new
+                {
+                    Message = "Los valores de página y tamaño de página deben ser mayores a 0."
+                });
+            }
+            int TotalCount = await _context.Categories.CountAsync();
+            if (page > TotalCount / pageSize + 1)
+            {
+                return BadRequest(new
+                {
+                    Message = "La página solicitada no existe."
+                });
+            }
 
             var categories = await _context.Categories
-                .Where(c => c.IsActive == true)
             .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -64,7 +127,7 @@ namespace EventosSernaJrAPI.Controllers
             return Ok(new
             {
                 Data = categories,
-                TotalCount = await _context.Categories.CountAsync(),
+                TotalCount,
                 Page = page,
                 PageSize = pageSize
             });
@@ -109,6 +172,7 @@ namespace EventosSernaJrAPI.Controllers
             }
 
             category.Name = categoryDTO.Name;
+            category.UpdatedAt = DateTime.Now;
             _context.Entry(category).State = EntityState.Modified;
 
             try
@@ -157,7 +221,9 @@ namespace EventosSernaJrAPI.Controllers
                 var category = new Category
                 {
                     Name = categorydto.Name,
-                    IsActive = true
+                    IsActive = true,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
                 };
                 _context.Categories.Add(category);
                 await _context.SaveChangesAsync();
@@ -181,7 +247,7 @@ namespace EventosSernaJrAPI.Controllers
         }
 
         // PUT: api/Categories/toggle-activation/5
-        [HttpPut("toggle-activation/{id}")]
+        [HttpPatch("toggle-activation/{id}")]
         public async Task<IActionResult> ToggleProductActivation(int id, [FromQuery] bool isActive)
         {
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
@@ -198,6 +264,7 @@ namespace EventosSernaJrAPI.Controllers
 
             // Actualizar el estado de activación
             category.IsActive = isActive;
+            category.UpdatedAt = DateTime.Now;
             _context.Entry(category).State = EntityState.Modified;
 
             // Guardar cambios

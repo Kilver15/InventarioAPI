@@ -36,7 +36,9 @@ namespace EventosSernaJrAPI.Controllers
             {
                 Username = userdto.Username,
                 Password = _jwtManager.encriptarSHA256(userdto.Password),
-                IsAdmin = false
+                IsAdmin = false,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
             };
 
             await _context.Users.AddAsync(user);
@@ -67,7 +69,6 @@ namespace EventosSernaJrAPI.Controllers
 
         }
 
-        /*
         [HttpGet("profile")]
         [Authorize]
         public IActionResult GetUserProfile()
@@ -76,6 +77,9 @@ namespace EventosSernaJrAPI.Controllers
             var username = User.FindFirst(ClaimTypes.Name)?.Value;
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
+            if (userId == null) {
+                return Unauthorized();
+            }
             return Ok(new
             {
                 UserId = userId,
@@ -83,6 +87,5 @@ namespace EventosSernaJrAPI.Controllers
                 Role = role
             });
         }
-        */
     }
 }
