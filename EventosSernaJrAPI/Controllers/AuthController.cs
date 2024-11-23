@@ -16,10 +16,12 @@ namespace EventosSernaJrAPI.Controllers
     {
         private readonly AppDBContext _context;
         private readonly JWTManager _jwtManager;
-        public AuthController(AppDBContext appDBContext, JWTManager jWTManager)
+        private readonly ILogger<AuthController> _logger;
+        public AuthController(AppDBContext appDBContext, JWTManager jWTManager, ILogger<AuthController> logger)
         {
             _context = appDBContext;
             _jwtManager = jWTManager;
+            _logger = logger;
         }
 
         // POST: api/Auth/Register
@@ -43,8 +45,9 @@ namespace EventosSernaJrAPI.Controllers
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
+            _logger.LogInformation("New registered user.");
 
-            return Ok("Usuario registrado Correctamente.");
+            return Ok("Registered user Successfully.");
         }
         
         // POST: api/Auth/Login
@@ -58,17 +61,33 @@ namespace EventosSernaJrAPI.Controllers
 
             if (user == null)
             {
-                return Unauthorized("Usuario Invalido");
+                return Unauthorized("Invalid user.");
             }
 
+            _logger.LogInformation($"User #{user.Id} logged in.");
             return Ok(new
             {
-                mensaje = "Autenticación exitosa",
-                token = _jwtManager.generarJWT(user)
+                Message = "Successful authentication",
+                Token = _jwtManager.generarJWT(user)
             });
 
         }
 
+        // POST: api/Auth/Logout
+        [HttpPost]
+        [Route("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            _logger.LogInformation($"User #{userId} logged out.");
+            return Ok("Logged out successfully.");
+        }
+
+        // GET: api/Auth/Profile
         [HttpGet("profile")]
         [Authorize]
         public IActionResult GetUserProfile()

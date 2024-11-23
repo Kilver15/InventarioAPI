@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using OfficeOpenXml;
 using Microsoft.AspNetCore.Http.HttpResults;
+using EventosSernaJrAPI.Services;
 
 namespace EventosSernaJrAPI.Controllers
 {
@@ -20,10 +21,14 @@ namespace EventosSernaJrAPI.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly AppDBContext _context;
+        private readonly ILogService _logService;
+        private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(AppDBContext context)
+        public ProductsController(AppDBContext context, ILogService logService, ILogger<ProductsController> logger)
         {
             _context = context;
+            _logService = logService;
+            _logger = logger;
         }
 
         // GET: api/Products
@@ -34,7 +39,7 @@ namespace EventosSernaJrAPI.Controllers
             {
                 return BadRequest(new
                 {
-                    Message = "Los valores de página y tamaño de página deben ser mayores a 0."
+                    Message = "The page and page size values ​​must be greater than 0."
                 });
             }
             int TotalCount = await _context.Products.CountAsync(p => p.IsActive);
@@ -42,7 +47,7 @@ namespace EventosSernaJrAPI.Controllers
             {
                 return BadRequest(new
                 {
-                    Message = "La página solicitada no existe."
+                    Message = "The requested page does not exist."
                 });
             }
 
@@ -69,13 +74,13 @@ namespace EventosSernaJrAPI.Controllers
 
             if (role != "Admin")
             {
-                return Forbid("No tienes permiso para acceder a este recurso.");
+                return Forbid("You don't have permission to access this resource.");
             }
             if (page < 1 || pageSize < 1)
             {
                 return BadRequest(new
                 {
-                    Message = "Los valores de página y tamaño de página deben ser mayores a 0."
+                    Message = "The page and page size values ​​must be greater than 0."
                 });
             }
             int TotalCount = await _context.Products.CountAsync(p => !p.IsActive);
@@ -83,10 +88,9 @@ namespace EventosSernaJrAPI.Controllers
             {
                 return BadRequest(new
                 {
-                    Message = "La página solicitada no existe."
+                    Message = "The requested page does not exist."
                 });
             }
-
             var products = await _context.Products
                 .Where(p => !p.IsActive)
                 .Skip((page - 1) * pageSize)
@@ -111,13 +115,13 @@ namespace EventosSernaJrAPI.Controllers
 
             if (role != "Admin")
             {
-                return Forbid("No tienes permiso para acceder a este recurso.");
+                return Forbid("You don't have permission to access this resource.");
             }
             if (page < 1 || pageSize < 1)
             {
                 return BadRequest(new
                 {
-                    Message = "Los valores de página y tamaño de página deben ser mayores a 0."
+                    Message = "The page and page size values ​​must be greater than 0."
                 });
             }
             int TotalCount = await _context.Products.CountAsync();
@@ -125,10 +129,9 @@ namespace EventosSernaJrAPI.Controllers
             {
                 return BadRequest(new
                 {
-                    Message = "La página solicitada no existe."
+                    Message = "The requested page does not exist."
                 });
             }
-
             var products = await _context.Products
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -153,7 +156,6 @@ namespace EventosSernaJrAPI.Controllers
             {
                 return NotFound();
             }
-
             return product;
         }
 
@@ -165,13 +167,13 @@ namespace EventosSernaJrAPI.Controllers
 
             if (role != "Admin")
             {
-                return Forbid("No tienes permiso para acceder a este recurso.");
+                return Forbid("You don't have permission to access this resource.");
             }
             if (!ModelState.IsValid)
             {
                 return BadRequest(new
                 {
-                    Message = "Datos inválidos.",
+                    Message = "Invalid data.",
                     Errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
                 });
             }
@@ -187,7 +189,8 @@ namespace EventosSernaJrAPI.Controllers
             product.CategoryId = productdto.categoryId;
             product.UpdatedAt = DateTime.Now;
             _context.Entry(product).State = EntityState.Modified;
-
+            _logger.LogInformation($"Product {product.Name} with ID {product.Id} was modified.");
+            await _logService.AddLogAsync($"ModifiedProduct {product.Name}, with ID {product.Id}.", User);
             try
             {
                 await _context.SaveChangesAsync();
@@ -206,7 +209,7 @@ namespace EventosSernaJrAPI.Controllers
 
             return Ok(new
             {
-                Message = "Datos actualizados correctamente."
+                Message = "Data updated correctly."
             });
         }
 
@@ -220,13 +223,13 @@ namespace EventosSernaJrAPI.Controllers
 
                 if (role != "Admin")
                 {
-                    return Forbid("No tienes permiso para acceder a este recurso.");
+                    return Forbid("You don't have permission to access this resource.");
                 }
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(new
                     {
-                        Message = "Datos inválidos.",
+                        Message = "Invalid data.",
                         Errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
                     });
                 }
@@ -243,10 +246,11 @@ namespace EventosSernaJrAPI.Controllers
 
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
-
+                _logger.LogInformation($"Product {product.Name} with ID {product.Id} was created.");
+                await _logService.AddLogAsync($"CreatedProduct {product.Name}, with ID {product.Id}.", User);
                 var response = new
                 {
-                    Message = "El producto se creó correctamente.",
+                    Message = "The product was created successfully.",
                     Data = product
                 };
 
@@ -256,7 +260,7 @@ namespace EventosSernaJrAPI.Controllers
             {
                 return StatusCode(500, new
                 {
-                    Message = "Ocurrió un error inesperado.",
+                    Message = "An unexpected error occurred.",
                     Details = ex.Message
                 });
             }
@@ -269,7 +273,7 @@ namespace EventosSernaJrAPI.Controllers
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             if (role != "Admin")
             {
-                return Forbid("No tienes permiso para acceder a este recurso.");
+                return Forbid("You don't have permission to access this resource.");
             }
 
             var product = await _context.Products.FindAsync(id);
@@ -283,10 +287,12 @@ namespace EventosSernaJrAPI.Controllers
             _context.Entry(product).State = EntityState.Modified;
 
             await _context.SaveChangesAsync();
+            await _logService.AddLogAsync($"User #{product.Id} {(isActive ? "activated" : "deactivated")}.", User);
+            _logger.LogInformation($"User #{product.Id} {(isActive ? "activated" : "deactivated")} by {User.FindFirst(ClaimTypes.Name)?.Value}.");
 
             return Ok(new
             {
-                Message = isActive ? "Producto reactivado correctamente." : "Producto desactivado correctamente."
+                Message = isActive ? "Product reactivated correctly." : "Product deactivated correctly."
             });
         }
 
@@ -302,7 +308,7 @@ namespace EventosSernaJrAPI.Controllers
 
             if (!products.Any())
             {
-                return NotFound(new { Message = "No se encontraron productos para esta categoría." });
+                return NotFound(new { Message = "No products were found for this category." });
             }
 
             return Ok(new
@@ -324,7 +330,7 @@ namespace EventosSernaJrAPI.Controllers
 
             if (!products.Any())
             {
-                return NotFound(new { Message = "No se encontraron productos con bajo stock." });
+                return NotFound(new { Message = "No low stock products were found." });
             }
 
             return Ok(new
@@ -339,10 +345,9 @@ namespace EventosSernaJrAPI.Controllers
         public async Task<IActionResult> UpdateStock([FromBody] List<UpdateStockDTO> updates)
         {
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
-
             if (role != "Admin")
             {
-                return Forbid("No tienes permiso para acceder a este recurso.");
+                return Forbid("You don't have permission to access this resource.");
             }
 
             foreach (var update in updates)
@@ -353,18 +358,25 @@ namespace EventosSernaJrAPI.Controllers
                     product.InStock = update.NewStock;
                     product.UpdatedAt = DateTime.Now;
                     _context.Entry(product).State = EntityState.Modified;
+
+                    await _logService.AddLogAsync($"MultiplyModifiedProducts, with ID {product.Id}.", User);
                 }
             }
-
+            _logger.LogWarning($"Multiple modified products.");
             await _context.SaveChangesAsync();
 
-            return Ok(new { Message = "Stock actualizado correctamente." });
+            return Ok(new { Message = "Stock updated correctly." });
         }
 
         // GET: api/Products/stats
         [HttpGet("stats")]
         public async Task<IActionResult> GetProductStats()
         {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (role != "Admin")
+            {
+                return Forbid("You don't have permission to access this resource.");
+            }
             var totalProducts = await _context.Products.CountAsync();
             var activeProducts = await _context.Products.CountAsync(p => p.IsActive);
             var inactiveProducts = totalProducts - activeProducts;
@@ -383,6 +395,11 @@ namespace EventosSernaJrAPI.Controllers
         [HttpGet("export")]
         public async Task<IActionResult> ExportProducts()
         {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (role != "Admin")
+            {
+                return Forbid("You don't have permission to access this resource.");
+            }
             var products = await _context.Products.Where(p => p.IsActive).ToListAsync();
 
             using var package = new ExcelPackage();
@@ -402,6 +419,8 @@ namespace EventosSernaJrAPI.Controllers
             }
 
             var stream = new MemoryStream(package.GetAsByteArray());
+            await _logService.AddLogAsync($"xlsx file created.", User);
+            _logger.LogInformation("xlsx file created.");
 
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Products.xlsx");
         }

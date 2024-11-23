@@ -8,7 +8,6 @@ using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Text;
-using static EventosSernaJrAPI.Services.IPaginationService;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -21,11 +21,15 @@ namespace EventosSernaJrAPI.Controllers
     {
         private readonly AppDBContext _context;
         private readonly JWTManager _jwtManager;
+        private readonly ILogger<UsersController> _logger;
+        private readonly ILogService _logService;
 
-        public UsersController(AppDBContext context, JWTManager jwtManager)
+        public UsersController(AppDBContext context, JWTManager jwtManager, ILogger<UsersController> logger, ILogService logService)
         {
             _context = context;
             _jwtManager = jwtManager;
+            _logger = logger;
+            _logService = logService;
         }
 
         // GET: api/Users
@@ -33,10 +37,9 @@ namespace EventosSernaJrAPI.Controllers
         public async Task<ActionResult<IEnumerable<User>>> GetUsers(int page = 1, int pageSize = 10)
         {
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
-
             if (role != "Admin")
             {
-                return Forbid("No tienes permiso para acceder a este recurso.");
+                return Forbid("You don't have permission to access this resource.");
             }
 
             var users = await _context.Users
@@ -60,7 +63,7 @@ namespace EventosSernaJrAPI.Controllers
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             if (role != "Admin")
             {
-                return Forbid("No tienes permiso para acceder a este recurso.");
+                return Forbid("You don't have permission to access this resource.");
             }
             var user = await _context.Users.FindAsync(id);
 
@@ -79,13 +82,13 @@ namespace EventosSernaJrAPI.Controllers
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             if (role != "Admin")
             {
-                return Forbid("No tienes permiso para acceder a este recurso.");
+                return Forbid("You don't have permission to access this resource.");
             }
             if (!ModelState.IsValid)
             {
                 return BadRequest(new
                 {
-                    Message = "Datos inválidos.",
+                    Message = "Invalid data.",
                     Errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
                 });
             }
@@ -101,6 +104,8 @@ namespace EventosSernaJrAPI.Controllers
             user.UpdatedAt = DateTime.Now;
             _context.Entry(user).State = EntityState.Modified;
 
+            _logger.LogInformation($"User #{user.Id} updated by {User.FindFirst(ClaimTypes.Name)?.Value}.");
+            await _logService.AddLogAsync($"User #{user.Id} updated.",User);
             try
             {
                 await _context.SaveChangesAsync();
@@ -128,7 +133,7 @@ namespace EventosSernaJrAPI.Controllers
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             if (role != "Admin")
             {
-                return Forbid("No tienes permiso para acceder a este recurso.");
+                return Forbid("You don't have permission to access this resource.");
             }
 
             user.CreatedAt = DateTime.Now;
@@ -136,6 +141,8 @@ namespace EventosSernaJrAPI.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
+            await _logService.AddLogAsync($"User #{user.Id} created.",User);
+            _logger.LogInformation($"User #{user.Id} created by {User.FindFirst(ClaimTypes.Name)?.Value}.");
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
@@ -146,26 +153,25 @@ namespace EventosSernaJrAPI.Controllers
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             if (role != "Admin")
             {
-                return Forbid("No tienes permiso para acceder a este recurso.");
+                return Forbid("You don't have permission to access this resource.");
             }
-            // Buscar el producto por ID
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            // Actualizar el estado de activación
             user.IsActive = isActive;
             user.UpdatedAt = DateTime.Now;
             _context.Entry(user).State = EntityState.Modified;
 
-            // Guardar cambios
             await _context.SaveChangesAsync();
 
+            await _logService.AddLogAsync($"User #{user.Id} {(isActive ? "activated" : "deactivated")}.",User);
+            _logger.LogInformation($"User #{user.Id} {(isActive ? "activated" : "deactivated")} by {User.FindFirst(ClaimTypes.Name)?.Value}.");
             return Ok(new
             {
-                Message = isActive ? "Usuario reactivado correctamente." : "Usuario desactivado correctamente."
+                Message = isActive ? "User reactivated correctly." : "User deactivated correctly."
             });
         }
 

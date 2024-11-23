@@ -10,6 +10,8 @@ using EventosSernaJrAPI.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.Drawing.Printing;
+using EventosSernaJrAPI.Services;
+using System.Data;
 
 namespace EventosSernaJrAPI.Controllers
 {
@@ -19,10 +21,14 @@ namespace EventosSernaJrAPI.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly AppDBContext _context;
+        private readonly ILogService _logService;
+        private readonly ILogger<CategoriesController> _logger;
 
-        public CategoriesController(AppDBContext context)
+        public CategoriesController(AppDBContext context, ILogService logService, ILogger<CategoriesController> logger)
         {
             _context = context;
+            _logService = logService;
+            _logger = logger;
         }
 
         // GET: api/Categories
@@ -33,7 +39,7 @@ namespace EventosSernaJrAPI.Controllers
             {
                 return BadRequest(new
                 {
-                    Message = "Los valores de página y tamaño de página deben ser mayores a 0."
+                    Message = "The page and page size values ​​must be greater than 0."
                 });
             }
             int TotalCount = await _context.Categories.CountAsync(c => c.IsActive);
@@ -41,7 +47,7 @@ namespace EventosSernaJrAPI.Controllers
             {
                 return BadRequest(new
                 {
-                    Message = "La página solicitada no existe."
+                    Message = "The requested page does not exist."
                 });
             }
             var categories = await _context.Categories
@@ -63,11 +69,16 @@ namespace EventosSernaJrAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetInactiveCategories(int page = 1, int pageSize = 10)
         {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (role != "Admin")
+            {
+                return Forbid("You don't have permission to access this resource.");
+            }
             if (page < 1 || pageSize < 1)
             {
                 return BadRequest(new
                 {
-                    Message = "Los valores de página y tamaño de página deben ser mayores a 0."
+                    Message = "The page and page size values ​​must be greater than 0."
                 });
             }
             int TotalCount = await _context.Categories.CountAsync(c => !c.IsActive);
@@ -75,7 +86,7 @@ namespace EventosSernaJrAPI.Controllers
             {
                 return BadRequest(new
                 {
-                    Message = "La página solicitada no existe."
+                    Message = "The requested page does not exist."
                 });
             }
             var categories = await _context.Categories
@@ -101,13 +112,13 @@ namespace EventosSernaJrAPI.Controllers
 
             if (role != "Admin")
             {
-                return Forbid("No tienes permiso para acceder a este recurso.");
+                return Forbid("You don't have permission to access this resource.");
             }
             if (page < 1 || pageSize < 1)
             {
                 return BadRequest(new
                 {
-                    Message = "Los valores de página y tamaño de página deben ser mayores a 0."
+                    Message = "The page and page size values ​​must be greater than 0."
                 });
             }
             int TotalCount = await _context.Categories.CountAsync();
@@ -115,7 +126,7 @@ namespace EventosSernaJrAPI.Controllers
             {
                 return BadRequest(new
                 {
-                    Message = "La página solicitada no existe."
+                    Message = "The requested page does not exist."
                 });
             }
 
@@ -154,13 +165,13 @@ namespace EventosSernaJrAPI.Controllers
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             if (role != "Admin")
             {
-                return Forbid("No tienes permiso para acceder a este recurso.");
+                return Forbid("You don't have permission to access this resource.");
             }
             if (!ModelState.IsValid)
             {
                 return BadRequest(new
                 {
-                    Message = "Datos inválidos.",
+                    Message = "Invalid data.",
                     Errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
                 });
             }
@@ -174,6 +185,9 @@ namespace EventosSernaJrAPI.Controllers
             category.Name = categoryDTO.Name;
             category.UpdatedAt = DateTime.Now;
             _context.Entry(category).State = EntityState.Modified;
+
+            await _logService.AddLogAsync($"ModifiedCategory {category.Name}, with ID {category.Id}", User);
+            _logger.LogInformation($"Category {category.Name} with ID {category.Id} was modified.");
 
             try
             {
@@ -193,7 +207,7 @@ namespace EventosSernaJrAPI.Controllers
 
             return Ok( new
             {
-                Message = "Datos actualizados correctamente."
+                Message = "Data updated correctly."
             });
         }
 
@@ -207,13 +221,13 @@ namespace EventosSernaJrAPI.Controllers
 
                 if (role != "Admin")
                 {
-                    return Forbid("No tienes permiso para acceder a este recurso.");
+                    return Forbid("You don't have permission to access this resource.");
                 }
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(new
                     {
-                        Message = "Datos inválidos.",
+                        Message = "Invalid data.",
                         Errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
                     });
                 }
@@ -228,9 +242,12 @@ namespace EventosSernaJrAPI.Controllers
                 _context.Categories.Add(category);
                 await _context.SaveChangesAsync();
 
+                await _logService.AddLogAsync($"CreatedCategory {category.Name}, with ID {category.Id}", User);
+                _logger.LogInformation($"Category {category.Name} with ID {category.Id} was created.");
+
                 var response = new
                 {
-                    Message = "La categoría se creó correctamente.",
+                    Message = "The category was created successfully.",
                     Data = category
                 };
 
@@ -239,7 +256,7 @@ namespace EventosSernaJrAPI.Controllers
             {
                 return StatusCode(500, new
                 {
-                    Message = "Ocurrió un error inesperado.",
+                    Message = "An unexpected error occurred.",
                     Details = ex.Message
                 });
             }
@@ -253,7 +270,7 @@ namespace EventosSernaJrAPI.Controllers
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             if (role != "Admin")
             {
-                return Forbid("No tienes permiso para acceder a este recurso.");
+                return Forbid("You don't have permission to access this resource.");
             }
 
             var category = await _context.Categories.FindAsync(id);
@@ -262,17 +279,18 @@ namespace EventosSernaJrAPI.Controllers
                 return NotFound();
             }
 
-            // Actualizar el estado de activación
             category.IsActive = isActive;
             category.UpdatedAt = DateTime.Now;
             _context.Entry(category).State = EntityState.Modified;
 
-            // Guardar cambios
+            await _logService.AddLogAsync($"User #{category.Id} {(isActive ? "activated" : "deactivated")}.", User);
+            _logger.LogInformation($"User #{category.Id} {(isActive ? "activated" : "deactivated")} by {User.FindFirst(ClaimTypes.Name)?.Value}.");
+
             await _context.SaveChangesAsync();
 
             return Ok(new
             {
-                Message = isActive ? "Categoria reactivada correctamente." : "Categoria desactivada correctamente."
+                Message = isActive ? "Category reactivated correctly." : "Category deactivated correctly."
             });
         }
 
