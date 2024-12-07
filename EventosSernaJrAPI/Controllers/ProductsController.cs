@@ -33,8 +33,18 @@ namespace EventosSernaJrAPI.Controllers
 
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts(int page = 1, int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts(bool isActive = true, int page = 1, int pageSize = 10)
         {
+            if (!isActive)
+            {
+                var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                if (role != "Admin")
+                {
+                    return Forbid("You don't have permission to access this resource.");
+                }
+            }
+
             if (page < 1 || pageSize < 1)
             {
                 return BadRequest(new
@@ -42,8 +52,9 @@ namespace EventosSernaJrAPI.Controllers
                     Message = "The page and page size values ​​must be greater than 0."
                 });
             }
-            int TotalCount = await _context.Products.CountAsync(p => p.IsActive);
-            if (page > TotalCount / pageSize + 1)
+
+            int totalCount = await _context.Products.CountAsync(p => p.IsActive == isActive);
+            if (page > (totalCount + pageSize - 1) / pageSize)
             {
                 return BadRequest(new
                 {
@@ -52,7 +63,7 @@ namespace EventosSernaJrAPI.Controllers
             }
 
             var products = await _context.Products
-                .Where(p => p.IsActive)
+                .Where(p => p.IsActive == isActive)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -60,51 +71,12 @@ namespace EventosSernaJrAPI.Controllers
             return Ok(new
             {
                 Data = products,
-                TotalCount,
+                TotalCount = totalCount,
                 Page = page,
                 PageSize = pageSize
             });
         }
 
-        // GET: api/Products/inactive
-        [HttpGet("inactive")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetInactiveProducts(int page = 1, int pageSize = 10)
-        {
-            var role = User.FindFirst(ClaimTypes.Role)?.Value;
-
-            if (role != "Admin")
-            {
-                return Forbid("You don't have permission to access this resource.");
-            }
-            if (page < 1 || pageSize < 1)
-            {
-                return BadRequest(new
-                {
-                    Message = "The page and page size values ​​must be greater than 0."
-                });
-            }
-            int TotalCount = await _context.Products.CountAsync(p => !p.IsActive);
-            if (page > TotalCount / pageSize + 1)
-            {
-                return BadRequest(new
-                {
-                    Message = "The requested page does not exist."
-                });
-            }
-            var products = await _context.Products
-                .Where(p => !p.IsActive)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return Ok(new
-            {
-                Data = products,
-                TotalCount,
-                Page = page,
-                PageSize = pageSize
-            });
-        }
 
 
         // GET: api/Products/all
@@ -179,7 +151,7 @@ namespace EventosSernaJrAPI.Controllers
             }
 
             var product = await _context.Products.FindAsync(id);
-            if(product == null)
+            if (product == null)
             {
                 return NotFound();
             }
@@ -234,6 +206,15 @@ namespace EventosSernaJrAPI.Controllers
                     });
                 }
 
+                var category = await _context.Categories.FindAsync(productdto.categoryId);
+                if (category == null)
+                {
+                    return BadRequest(new
+                    {
+                        Message = "The category does not exist."
+                    });
+                }
+
                 var product = new Product
                 {
                     Name = productdto.Name,
@@ -241,7 +222,7 @@ namespace EventosSernaJrAPI.Controllers
                     CategoryId = productdto.categoryId,
                     IsActive = true,
                     CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
+                    UpdatedAt = DateTime.Now,
                 };
 
                 _context.Products.Add(product);
@@ -287,8 +268,8 @@ namespace EventosSernaJrAPI.Controllers
             _context.Entry(product).State = EntityState.Modified;
 
             await _context.SaveChangesAsync();
-            await _logService.AddLogAsync($"User #{product.Id} {(isActive ? "activated" : "deactivated")}.", User);
-            _logger.LogInformation($"User #{product.Id} {(isActive ? "activated" : "deactivated")} by {User.FindFirst(ClaimTypes.Name)?.Value}.");
+            await _logService.AddLogAsync($"Product #{product.Id} {(isActive ? "activated" : "deactivated")}.", User);
+            _logger.LogInformation($"Product #{product.Id} {(isActive ? "activated" : "deactivated")} by {User.FindFirst(ClaimTypes.Name)?.Value}.");
 
             return Ok(new
             {
@@ -298,27 +279,33 @@ namespace EventosSernaJrAPI.Controllers
 
         // GET: api/Products/by-category/{categoryId}
         [HttpGet("by-category/{categoryId}")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProductsByCategory(int categoryId, int page = 1, int pageSize = 10)
+        public async Task<ActionResult> GetProductsByCategory(int categoryId, int page = 1, int pageSize = 10)
         {
-            var products = await _context.Products
-                .Where(p => p.CategoryId == categoryId && p.IsActive)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            if (!products.Any())
+            if (page < 1 || pageSize < 1)
             {
-                return NotFound(new { Message = "No products were found for this category." });
+                return BadRequest(new { Message = "Page and PageSize must be greater than 0." });
             }
 
-            return Ok(new
+            try
             {
-                Data = products,
-                TotalCount = await _context.Products.CountAsync(p => p.CategoryId == categoryId),
-                Page = page,
-                PageSize = pageSize
-            });
+                var products = await _context.GetProductsByCategoryAsync(categoryId, page, pageSize);
+
+                int totalCount = products.Count();
+
+                return Ok(new
+                {
+                    Data = products,
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = ex.Message });
+            }
         }
+
 
         // GET: api/Products/low-stock
         [HttpGet("low-stock")]
@@ -424,7 +411,6 @@ namespace EventosSernaJrAPI.Controllers
 
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Products.xlsx");
         }
-
 
         private bool ProductExists(int id)
         {

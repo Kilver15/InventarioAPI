@@ -66,7 +66,7 @@ namespace EventosSernaJrAPI.Controllers
         }
 
         // GET: api/Categories/inactive
-        [HttpGet]
+        [HttpGet("inactive")]
         public async Task<ActionResult<IEnumerable<Category>>> GetInactiveCategories(int page = 1, int pageSize = 10)
         {
             var role = User.FindFirst(ClaimTypes.Role)?.Value;

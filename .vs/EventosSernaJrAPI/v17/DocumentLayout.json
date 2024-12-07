@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6E03F7DB-1460-405D-AF28-D7448148A505}|EventosSernaJrAPI\\EventosSernaJrAPI.csproj|c:\\users\\josei\\source\\repos\\eventossernajrapi\\eventossernajrapi\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6E03F7DB-1460-405D-AF28-D7448148A505}|EventosSernaJrAPI\\EventosSernaJrAPI.csproj|solutionrelative:eventossernajrapi\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6E03F7DB-1460-405D-AF28-D7448148A505}|EventosSernaJrAPI\\EventosSernaJrAPI.csproj|c:\\users\\josei\\source\\repos\\eventossernajrapi\\eventossernajrapi\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6E03F7DB-1460-405D-AF28-D7448148A505}|EventosSernaJrAPI\\EventosSernaJrAPI.csproj|solutionrelative:eventossernajrapi\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,19 +14,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             },
             {
               "$type": "Bookmark",
@@ -39,14 +31,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ProductsController.cs",
-              "DocumentMoniker": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\Controllers\\ProductsController.cs",
-              "RelativeDocumentMoniker": "EventosSernaJrAPI\\Controllers\\ProductsController.cs",
-              "ToolTip": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\Controllers\\ProductsController.cs",
-              "RelativeToolTip": "EventosSernaJrAPI\\Controllers\\ProductsController.cs",
-              "ViewState": "AQIAABIBAAAAAAAAAAAAABkBAAAiAAAA",
+              "Title": "OrdersController.cs",
+              "DocumentMoniker": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\Controllers\\OrdersController.cs",
+              "RelativeDocumentMoniker": "EventosSernaJrAPI\\Controllers\\OrdersController.cs",
+              "ToolTip": "C:\\Users\\josei\\source\\repos\\EventosSernaJrAPI\\EventosSernaJrAPI\\Controllers\\OrdersController.cs",
+              "RelativeToolTip": "EventosSernaJrAPI\\Controllers\\OrdersController.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAUwBYAAAA1AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-23T06:15:03.456Z",
+              "WhenOpened": "2024-12-05T17:57:56.711Z",
               "EditorCaption": ""
             }
           ]

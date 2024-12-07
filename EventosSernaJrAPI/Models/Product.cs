@@ -13,5 +13,6 @@ namespace EventosSernaJrAPI.Models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public Category Category { get; set; }
+        public List<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
     }
 }

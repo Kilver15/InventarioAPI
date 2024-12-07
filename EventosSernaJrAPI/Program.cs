@@ -43,6 +43,9 @@ builder.Services.AddDbContext<AppDBContext>(options => {
             options.UseSqlServer(ConnectionString); 
             options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning)); });
 
+//Servicio de Logs a Bd
+builder.Services.AddScoped<ILogService, LogService>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

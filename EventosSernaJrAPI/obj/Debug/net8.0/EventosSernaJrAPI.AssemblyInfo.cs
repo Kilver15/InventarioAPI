@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EventosSernaJrAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3e3b7f06448f190c79b6e93cc8e9990007eae4a2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+14ffb9c316fecee7faa292d959d028d371b2747e")]
 [assembly: System.Reflection.AssemblyProductAttribute("EventosSernaJrAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EventosSernaJrAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
