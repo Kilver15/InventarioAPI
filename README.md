@@ -49,6 +49,6 @@ EPPlus: Biblioteca para la manipulación de archivos Excel, utilizada en la impo
 
 # Endpoints
 La documentación completa de los endpoints está disponible aquí:
-https://www.postman.com/joint-operations-participant-81264458/inventario-api/collection/xx2excs/inventarioapi?action=share&creator=39943883
+[Documentación de la API en Postman](https://www.postman.com/joint-operations-participant-81264458/inventario-api/collection/xx2excs/inventarioapi?action=share&creator=39943883)
 
 
