@@ -206,15 +206,6 @@ namespace EventosSernaJrAPI.Controllers
                     });
                 }
 
-                var category = await _context.Categories.FindAsync(productdto.categoryId);
-                if (category == null)
-                {
-                    return BadRequest(new
-                    {
-                        Message = "The category does not exist."
-                    });
-                }
-
                 var product = new Product
                 {
                     Name = productdto.Name,
@@ -227,6 +218,7 @@ namespace EventosSernaJrAPI.Controllers
 
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
+
                 _logger.LogInformation($"Product {product.Name} with ID {product.Id} was created.");
                 await _logService.AddLogAsync($"CreatedProduct {product.Name}, with ID {product.Id}.", User);
                 var response = new

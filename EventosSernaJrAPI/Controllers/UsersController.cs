@@ -67,6 +67,16 @@ namespace EventosSernaJrAPI.Controllers
             }
             var user = await _context.Users.FindAsync(id);
 
+            var userDTO = new User
+            {
+                Id = user.Id,
+                Username = user.Username,
+                IsActive = user.IsActive,
+                IsAdmin = user.IsAdmin,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt
+            };
+
             if (user == null)
             {
                 return NotFound();

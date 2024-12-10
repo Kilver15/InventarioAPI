@@ -33,8 +33,18 @@ namespace EventosSernaJrAPI.Controllers
 
         // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories(int page = 1, int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories(bool isActive = true, int page = 1, int pageSize = 10)
         {
+            if (!isActive)
+            {
+                var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                if (role != "Admin")
+                {
+                    return Forbid("You don't have permission to access this resource.");
+                }
+            }
+
             if (page < 1 || pageSize < 1)
             {
                 return BadRequest(new
@@ -42,16 +52,18 @@ namespace EventosSernaJrAPI.Controllers
                     Message = "The page and page size values ​​must be greater than 0."
                 });
             }
-            int TotalCount = await _context.Categories.CountAsync(c => c.IsActive);
-            if (page > TotalCount / pageSize + 1)
+
+            int totalCount = await _context.Categories.CountAsync(p => p.IsActive == isActive);
+            if (page > (totalCount + pageSize - 1) / pageSize)
             {
                 return BadRequest(new
                 {
                     Message = "The requested page does not exist."
                 });
             }
+
             var categories = await _context.Categories
-                .Where(c => c.IsActive == true)
+                .Where(p => p.IsActive == isActive)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -59,46 +71,7 @@ namespace EventosSernaJrAPI.Controllers
             return Ok(new
             {
                 Data = categories,
-                TotalCount,
-                Page = page,
-                PageSize = pageSize
-            });
-        }
-
-        // GET: api/Categories/inactive
-        [HttpGet("inactive")]
-        public async Task<ActionResult<IEnumerable<Category>>> GetInactiveCategories(int page = 1, int pageSize = 10)
-        {
-            var role = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (role != "Admin")
-            {
-                return Forbid("You don't have permission to access this resource.");
-            }
-            if (page < 1 || pageSize < 1)
-            {
-                return BadRequest(new
-                {
-                    Message = "The page and page size values ​​must be greater than 0."
-                });
-            }
-            int TotalCount = await _context.Categories.CountAsync(c => !c.IsActive);
-            if (page > TotalCount / pageSize + 1)
-            {
-                return BadRequest(new
-                {
-                    Message = "The requested page does not exist."
-                });
-            }
-            var categories = await _context.Categories
-                .Where(c => !c.IsActive)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return Ok(new
-            {
-                Data = categories,
-                TotalCount,
+                TotalCount = totalCount,
                 Page = page,
                 PageSize = pageSize
             });

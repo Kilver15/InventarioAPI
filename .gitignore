@@ -1,5 +1,5 @@
 # Archivos sensibles
-appsettings.Development.json
+appsettings.json
 
 # Archivos de compilación y dependencias
 bin/
